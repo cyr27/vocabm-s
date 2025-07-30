@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vocabulary Tabs with Timer</title>
+  <title>Vocabulary Tabs with Controlled Display</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,21 +32,22 @@
     .word-display {
       font-size: 24px;
       margin: 20px 0;
+      height: 30px;
     }
     .nav-buttons button {
-      padding: 5px 10px;
+      padding: 6px 12px;
       margin: 0 5px;
     }
     .timer {
       font-size: 18px;
-      margin: 10px 0;
       color: #333;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
 
-<h2>Vocabulary Tabs with Timer</h2>
+<h2>Vocabulary Tabs with Start-Controlled Words</h2>
 
 <div class="tabs">
   <div class="tab-button active" onclick="switchTab(0)">Tab 1</div>
@@ -71,6 +72,7 @@
   let wordIndices = [0, 0, 0, 0, 0];
   let timers = [0, 0, 0, 0, 0];
   let timerIntervals = [null, null, null, null, null];
+  let wordVisible = [false, false, false, false, false];
 
   function renderTabs() {
     const container = document.getElementById('tabContents');
@@ -80,10 +82,12 @@
       const tabDiv = document.createElement('div');
       tabDiv.className = 'tab-content' + (isActive ? ' active' : '');
       tabDiv.innerHTML = `
-        <div class="word-display" id="word-${i}">${words[wordIndices[i]]}</div>
         <div class="timer" id="timer-${i}">Timer: 0s</div>
+        <div class="word-display" id="word-${i}">
+          ${wordVisible[i] ? words[wordIndices[i]] : ""}
+        </div>
         <div class="nav-buttons">
-          <button onclick="startTimer(${i})">Start</button>
+          <button onclick="startSession(${i})">Start</button>
           <button onclick="nextWord(${i})">Next Word</button>
           <button onclick="stopTimer(${i})">Stop</button>
         </div>
@@ -100,30 +104,28 @@
     renderTabs();
   }
 
-  function nextWord(tabIndex) {
-    if (wordIndices[tabIndex] < wordGroups[tabIndex].length - 1) {
-      wordIndices[tabIndex]++;
-    } else {
-      wordIndices[tabIndex] = 0; // Loop to first word
-    }
-    document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][wordIndices[tabIndex]];
-  }
-
-  function startTimer(tabIndex) {
-    stopTimer(tabIndex); // Prevent multiple timers
+  function startSession(tabIndex) {
+    stopTimer(tabIndex); // Prevent overlap
+    wordIndices[tabIndex] = 0;
+    wordVisible[tabIndex] = true;
     timers[tabIndex] = 0;
     document.getElementById(`timer-${tabIndex}`).textContent = `Timer: 0s`;
     timerIntervals[tabIndex] = setInterval(() => {
       timers[tabIndex]++;
       document.getElementById(`timer-${tabIndex}`).textContent = `Timer: ${timers[tabIndex]}s`;
     }, 1000);
+    renderTabs();
+  }
+
+  function nextWord(tabIndex) {
+    if (!wordVisible[tabIndex]) return; // Do nothing if Start not pressed
+    wordIndices[tabIndex] = (wordIndices[tabIndex] + 1) % wordGroups[tabIndex].length;
+    document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][wordIndices[tabIndex]];
   }
 
   function stopTimer(tabIndex) {
-    if (timerIntervals[tabIndex]) {
-      clearInterval(timerIntervals[tabIndex]);
-      timerIntervals[tabIndex] = null;
-    }
+    clearInterval(timerIntervals[tabIndex]);
+    timerIntervals[tabIndex] = null;
   }
 
   renderTabs();
