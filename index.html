@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vocabulary Tabs with Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      margin-right: 5px;
+      border: 1px solid #ccc;
+      background: #f0f0f0;
+      cursor: pointer;
+    }
+    .tab-button.active {
+      background-color: #007bff;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .word-display {
+      font-size: 24px;
+      margin: 20px 0;
+    }
+    .nav-buttons button {
+      padding: 5px 10px;
+      margin: 0 5px;
+    }
+    .timer {
+      font-size: 18px;
+      margin: 10px 0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Vocabulary Tabs with Timer</h2>
+
+<div class="tabs">
+  <div class="tab-button active" onclick="switchTab(0)">Tab 1</div>
+  <div class="tab-button" onclick="switchTab(1)">Tab 2</div>
+  <div class="tab-button" onclick="switchTab(2)">Tab 3</div>
+  <div class="tab-button" onclick="switchTab(3)">Tab 4</div>
+  <div class="tab-button" onclick="switchTab(4)">Tab 5</div>
+</div>
+
+<div id="tabContents"></div>
+
+<script>
+  const wordGroups = [
+    ["rhythm", "accordion", "classical music", "catchy", "humour"],
+    ["tour", "tune", "optimistic", "rehearsal", "culture"],
+    ["perform", "promote", "orchestra", "cheerful", "social media"],
+    ["folk music", "pop music", "lively", "disagree", "musical instrument"],
+    ["rap", "calender", "midnight", "romantic", "audience"]
+  ];
+
+  let currentTab = 0;
+  let wordIndices = [0, 0, 0, 0, 0];
+  let timers = [0, 0, 0, 0, 0];
+  let timerIntervals = [null, null, null, null, null];
+
+  function renderTabs() {
+    const container = document.getElementById('tabContents');
+    container.innerHTML = '';
+    wordGroups.forEach((words, i) => {
+      const isActive = i === currentTab;
+      const tabDiv = document.createElement('div');
+      tabDiv.className = 'tab-content' + (isActive ? ' active' : '');
+      tabDiv.innerHTML = `
+        <div class="word-display" id="word-${i}">${words[wordIndices[i]]}</div>
+        <div class="timer" id="timer-${i}">Timer: 0s</div>
+        <div class="nav-buttons">
+          <button onclick="startTimer(${i})">Start</button>
+          <button onclick="nextWord(${i})">Next Word</button>
+          <button onclick="stopTimer(${i})">Stop</button>
+        </div>
+      `;
+      container.appendChild(tabDiv);
+    });
+  }
+
+  function switchTab(index) {
+    currentTab = index;
+    document.querySelectorAll('.tab-button').forEach((btn, i) => {
+      btn.classList.toggle('active', i === index);
+    });
+    renderTabs();
+  }
+
+  function nextWord(tabIndex) {
+    if (wordIndices[tabIndex] < wordGroups[tabIndex].length - 1) {
+      wordIndices[tabIndex]++;
+    } else {
+      wordIndices[tabIndex] = 0; // Loop to first word
+    }
+    document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][wordIndices[tabIndex]];
+  }
+
+  function startTimer(tabIndex) {
+    stopTimer(tabIndex); // Prevent multiple timers
+    timers[tabIndex] = 0;
+    document.getElementById(`timer-${tabIndex}`).textContent = `Timer: 0s`;
+    timerIntervals[tabIndex] = setInterval(() => {
+      timers[tabIndex]++;
+      document.getElementById(`timer-${tabIndex}`).textContent = `Timer: ${timers[tabIndex]}s`;
+    }, 1000);
+  }
+
+  function stopTimer(tabIndex) {
+    if (timerIntervals[tabIndex]) {
+      clearInterval(timerIntervals[tabIndex]);
+      timerIntervals[tabIndex] = null;
+    }
+  }
+
+  renderTabs();
+</script>
+
+</body>
+</html>
