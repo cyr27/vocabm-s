@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vocabulary Tabs with Controlled Display</title>
+  <title>Hidden Words Tabs with Timer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -47,7 +47,7 @@
 </head>
 <body>
 
-<h2>Vocabulary Tabs with Start-Controlled Words</h2>
+<h2>Vocabulary Tabs with Hidden Words</h2>
 
 <div class="tabs">
   <div class="tab-button active" onclick="switchTab(0)">Tab 1</div>
@@ -105,27 +105,29 @@
   }
 
   function startSession(tabIndex) {
-    stopTimer(tabIndex); // Prevent overlap
+    stopTimer(tabIndex);
     wordIndices[tabIndex] = 0;
     wordVisible[tabIndex] = true;
     timers[tabIndex] = 0;
     document.getElementById(`timer-${tabIndex}`).textContent = `Timer: 0s`;
+    document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][0];
     timerIntervals[tabIndex] = setInterval(() => {
       timers[tabIndex]++;
       document.getElementById(`timer-${tabIndex}`).textContent = `Timer: ${timers[tabIndex]}s`;
     }, 1000);
-    renderTabs();
   }
 
   function nextWord(tabIndex) {
-    if (!wordVisible[tabIndex]) return; // Do nothing if Start not pressed
+    if (!wordVisible[tabIndex]) return;
     wordIndices[tabIndex] = (wordIndices[tabIndex] + 1) % wordGroups[tabIndex].length;
     document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][wordIndices[tabIndex]];
   }
 
   function stopTimer(tabIndex) {
-    clearInterval(timerIntervals[tabIndex]);
-    timerIntervals[tabIndex] = null;
+    if (timerIntervals[tabIndex]) {
+      clearInterval(timerIntervals[tabIndex]);
+      timerIntervals[tabIndex] = null;
+    }
   }
 
   renderTabs();
