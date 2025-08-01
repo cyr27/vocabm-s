@@ -1,137 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Hidden Words Tabs with Timer</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .tabs {
-      display: flex;
-      margin-bottom: 20px;
-    }
-    .tab-button {
-      padding: 10px 20px;
-      margin-right: 5px;
-      border: 1px solid #ccc;
-      background: #f0f0f0;
-      cursor: pointer;
-    }
-    .tab-button.active {
-      background-color: #007bff;
-      color: white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .word-display {
-      font-size: 24px;
-      margin: 20px 0;
-      height: 30px;
-    }
-    .nav-buttons button {
-      padding: 6px 12px;
-      margin: 0 5px;
-    }
-    .timer {
-      font-size: 18px;
-      color: #333;
-      margin-bottom: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fill in the Blanks</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .choice-btn {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            width: 100%;
+        }
+        .choice-btn:hover {
+            background-color: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .choice-btn.selected {
+            background-color: #93c5fd;
+            color: #1e40af;
+            border: 2px solid #3b82f6;
+        }
+        .choice-btn.correct {
+            background-color: #4ade80;
+            color: #166534;
+        }
+        .choice-btn.incorrect {
+            background-color: #fca5a5;
+            color: #991b1b;
+        }
+        .choice-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-<h2>Vocabulary Tabs with Hidden Words</h2>
+    <div class="container mx-auto p-8 bg-white rounded-xl shadow-2xl max-w-6xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-12 text-gray-800">Fill in the Blanks Challenge</h1>
+        <div class="flex flex-col md:flex-row gap-8 justify-around">
 
-<div class="tabs">
-  <div class="tab-button active" onclick="switchTab(0)">Tab 1</div>
-  <div class="tab-button" onclick="switchTab(1)">Tab 2</div>
-  <div class="tab-button" onclick="switchTab(2)">Tab 3</div>
-  <div class="tab-button" onclick="switchTab(3)">Tab 4</div>
-  <div class="tab-button" onclick="switchTab(4)">Tab 5</div>
-</div>
+            <!-- Game 1 Interface -->
+            <div id="game1-container" class="bg-gray-50 p-6 rounded-lg shadow-inner flex-1 border border-gray-200">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-700">Group 1</h2>
+                
+                <!-- Game UI -->
+                <div id="game1-ui" class="text-center">
+                    <p id="game1-question" class="text-xl font-medium mb-4 text-gray-800"></p>
+                    <div id="game1-choices" class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4"></div>
+                    <p id="game1-feedback" class="text-lg font-semibold mt-2"></p>
+                    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+                        <button id="game1-start-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105">Start Game</button>
+                        <button id="game1-submit-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hidden">Submit Answer</button>
+                        <button id="game1-next-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hidden">Next Question</button>
+                    </div>
+                </div>
+                <!-- Score and Timer Display -->
+                <div class="mt-8 text-center text-gray-700">
+                    <span class="text-xl font-semibold">Score: <span id="game1-score">0</span></span>
+                    <span class="text-xl font-semibold ml-8">Time: <span id="game1-timer-display">00:00</span></span>
+                </div>
+            </div>
 
-<div id="tabContents"></div>
+            <!-- Game 2 Interface -->
+            <div id="game2-container" class="bg-gray-50 p-6 rounded-lg shadow-inner flex-1 border border-gray-200">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-700">Group 2</h2>
 
-<script>
-  const wordGroups = [
-    ["rhythm", "accordion", "classical music", "catchy", "humour"],
-    ["tour", "tune", "optimistic", "rehearsal", "culture"],
-    ["perform", "promote", "orchestra", "cheerful", "social media"],
-    ["folk music", "pop music", "lively", "disagree", "musical instrument"],
-    ["rap", "calender", "midnight", "romantic", "audience"]
-  ];
+                <!-- Game UI -->
+                <div id="game2-ui" class="text-center">
+                    <p id="game2-question" class="text-xl font-medium mb-4 text-gray-800"></p>
+                    <div id="game2-choices" class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4"></div>
+                    <p id="game2-feedback" class="text-lg font-semibold mt-2"></p>
+                    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+                        <button id="game2-start-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105">Start Game</button>
+                        <button id="game2-submit-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hidden">Submit Answer</button>
+                        <button id="game2-next-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hidden">Next Question</button>
+                    </div>
+                </div>
+                <!-- Score and Timer Display -->
+                <div class="mt-8 text-center text-gray-700">
+                    <span class="text-xl font-semibold">Score: <span id="game2-score">0</span></span>
+                    <span class="text-xl font-semibold ml-8">Time: <span id="game2-timer-display">00:00</span></span>
+                </div>
+            </div>
 
-  let currentTab = 0;
-  let wordIndices = [0, 0, 0, 0, 0];
-  let timers = [0, 0, 0, 0, 0];
-  let timerIntervals = [null, null, null, null, null];
-  let wordVisible = [false, false, false, false, false];
-
-  function renderTabs() {
-    const container = document.getElementById('tabContents');
-    container.innerHTML = '';
-    wordGroups.forEach((words, i) => {
-      const isActive = i === currentTab;
-      const tabDiv = document.createElement('div');
-      tabDiv.className = 'tab-content' + (isActive ? ' active' : '');
-      tabDiv.innerHTML = `
-        <div class="timer" id="timer-${i}">Timer: 0s</div>
-        <div class="word-display" id="word-${i}">
-          ${wordVisible[i] ? words[wordIndices[i]] : ""}
         </div>
-        <div class="nav-buttons">
-          <button onclick="startSession(${i})">Start</button>
-          <button onclick="nextWord(${i})">Next Word</button>
-          <button onclick="stopTimer(${i})">Stop</button>
-        </div>
-      `;
-      container.appendChild(tabDiv);
-    });
-  }
+    </div>
 
-  function switchTab(index) {
-    currentTab = index;
-    document.querySelectorAll('.tab-button').forEach((btn, i) => {
-      btn.classList.toggle('active', i === index);
-    });
-    renderTabs();
-  }
+    <script>
+        // Combine all questions into a single array
+        const allQuestions = [
+            { question: "The band will _____ at the city festival next weekend.", answer: "perform" },
+            { question: "She plays a beautiful _____ in her band.", answer: "accordion" },
+            { question: "A famous ______ is coming to town to play a concert.", answer: "orchestra" },
+            { question: "You can find all our upcoming gigs on the official _____.", answer: "calendar" },
+            { question: "The artist will _____ their new album with a series of interviews.", answer: "promote" },
+            { question: "We had a long _____ before the big show to make sure everything was perfect.", answer: "rehearsal" },
+            { question: "He writes lyrics with a strong, powerful _____.", answer: "rhythm" },
+            { question: "Many people listen to _____ while studying because it helps them focus.", answer: "classical music" },
+            { question: "The singer-songwriter's music is a modern take on traditional _____.", answer: "folk music" },
+            { question: "Their global _____ will take them to over 20 different countries.", answer: "tour" },
+            { question: "The famous DJ will release a new _____.", answer: "tune" },
+            { question: "The singer's style is inspired by modern _____ artists.", answer: "rap" },
+            { question: "The song is a simple, upbeat example of modern _____.", answer: "pop music" },
+            { question: "The song has a really _____ melody that I can't get out of my head.", answer: "catchy" },
+            { question: "Her _____ personality makes her a joy to be around.", answer: "cheerful" },
+            { question: "The party was so _____ with everyone dancing and having fun.", answer: "lively" },
+            { question: "He always stays _____ and believes that good things will happen.", answer: "optimistic" },
+            { question: "The movie's soundtrack was full of beautiful, _____ piano pieces.", answer: "romantic" },
+        ];
+        
+        // Generate a single word pool from all questions for incorrect choices
+        const allWordPool = [...new Set(allQuestions.map(q => q.answer))];
 
-  function startSession(tabIndex) {
-    stopTimer(tabIndex);
-    wordIndices[tabIndex] = 0;
-    wordVisible[tabIndex] = true;
-    timers[tabIndex] = 0;
-    document.getElementById(`timer-${tabIndex}`).textContent = `Timer: 0s`;
-    document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][0];
-    timerIntervals[tabIndex] = setInterval(() => {
-      timers[tabIndex]++;
-      document.getElementById(`timer-${tabIndex}`).textContent = `Timer: ${timers[tabIndex]}s`;
-    }, 1000);
-  }
+        // Game 1 Variables
+        let game1CurrentQuestionIndex = 0;
+        let game1Score = 0;
+        let game1SelectedAnswer = null;
+        let game1ShuffledQuestions = [];
+        let game1Timer = 0;
+        let game1Interval = null;
 
-  function nextWord(tabIndex) {
-    if (!wordVisible[tabIndex]) return;
-    wordIndices[tabIndex] = (wordIndices[tabIndex] + 1) % wordGroups[tabIndex].length;
-    document.getElementById(`word-${tabIndex}`).textContent = wordGroups[tabIndex][wordIndices[tabIndex]];
-  }
+        // Game 2 Variables
+        let game2CurrentQuestionIndex = 0;
+        let game2Score = 0;
+        let game2SelectedAnswer = null;
+        let game2ShuffledQuestions = [];
+        let game2Timer = 0;
+        let game2Interval = null;
 
-  function stopTimer(tabIndex) {
-    if (timerIntervals[tabIndex]) {
-      clearInterval(timerIntervals[tabIndex]);
-      timerIntervals[tabIndex] = null;
-    }
-  }
+        // Common DOM Elements
+        const game1StartBtn = document.getElementById('game1-start-btn');
+        const game1SubmitBtn = document.getElementById('game1-submit-btn');
+        const game1NextBtn = document.getElementById('game1-next-btn');
+        const game1QuestionEl = document.getElementById('game1-question');
+        const game1ChoicesEl = document.getElementById('game1-choices');
+        const game1FeedbackEl = document.getElementById('game1-feedback');
+        const game1ScoreEl = document.getElementById('game1-score');
+        const game1TimerDisplay = document.getElementById('game1-timer-display');
 
-  renderTabs();
-</script>
+        const game2StartBtn = document.getElementById('game2-start-btn');
+        const game2SubmitBtn = document.getElementById('game2-submit-btn');
+        const game2NextBtn = document.getElementById('game2-next-btn');
+        const game2QuestionEl = document.getElementById('game2-question');
+        const game2ChoicesEl = document.getElementById('game2-choices');
+        const game2FeedbackEl = document.getElementById('game2-feedback');
+        const game2ScoreEl = document.getElementById('game2-score');
+        const game2TimerDisplay = document.getElementById('game2-timer-display');
 
+        // Function to shuffle an array
+        const shuffle = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // Function to generate 4 choices (one correct, three incorrect)
+        const generateChoices = (correctAnswer, wordPool) => {
+            let choices = [correctAnswer];
+            const incorrectWords = wordPool.filter(word => word.toLowerCase() !== correctAnswer.toLowerCase());
+            shuffle(incorrectWords);
+            choices = choices.concat(incorrectWords.slice(0, 3));
+            return shuffle(choices);
+        };
+
+        // Function to format time as MM:SS
+        const formatTime = (seconds) => {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            const pad = (num) => String(num).padStart(2, '0');
+            return `${pad(minutes)}:${pad(remainingSeconds)}`;
+        };
+
+        // Game 1 Functions
+        const startTimer1 = () => {
+            game1Timer = 0;
+            game1TimerDisplay.textContent = formatTime(game1Timer);
+            game1Interval = setInterval(() => {
+                game1Timer++;
+                game1TimerDisplay.textContent = formatTime(game1Timer);
+            }, 1000);
+        };
+
+        const stopTimer1 = () => {
+            clearInterval(game1Interval);
+        };
+
+        const startGame1 = () => {
+            game1ShuffledQuestions = shuffle(allQuestions);
+            game1CurrentQuestionIndex = 0;
+            game1Score = 0;
+            game1ScoreEl.textContent = game1Score;
+            game1StartBtn.classList.add('hidden');
+            game1SubmitBtn.classList.remove('hidden');
+            game1NextBtn.classList.add('hidden');
+            game1FeedbackEl.textContent = '';
+            game1QuestionEl.textContent = '';
+            startTimer1(); // Start the timer
+            showQuestion1();
+        };
+
+        const showQuestion1 = () => {
+            game1SelectedAnswer = null;
+            if (game1CurrentQuestionIndex < game1ShuffledQuestions.length) {
+                const currentQuestion = game1ShuffledQuestions[game1CurrentQuestionIndex];
+                game1QuestionEl.textContent = currentQuestion.question;
+                game1FeedbackEl.textContent = '';
+                game1ChoicesEl.innerHTML = ''; // Clear previous choices
+                game1SubmitBtn.disabled = false;
+                
+                const choices = generateChoices(currentQuestion.answer, allWordPool);
+
+                choices.forEach(choice => {
+                    const button = document.createElement('button');
+                    button.textContent = choice;
+                    button.classList.add('choice-btn');
+                    // The 'click' event listener is compatible with both mouse and touch events
+                    button.addEventListener('click', () => {
+                        // Deselect any previously selected choice
+                        document.querySelectorAll('#game1-choices .choice-btn').forEach(btn => btn.classList.remove('selected'));
+                        // Select the current choice
+                        button.classList.add('selected');
+                        game1SelectedAnswer = choice;
+                    });
+                    game1ChoicesEl.appendChild(button);
+                });
+            } else {
+                endGame1();
+            }
+        };
+
+        const submitAnswer1 = () => {
+            if (!game1SelectedAnswer) {
+                game1FeedbackEl.textContent = 'Please select an answer first!';
+                game1FeedbackEl.classList.remove('text-green-600');
+                game1FeedbackEl.classList.add('text-red-500');
+                return;
+            }
+
+            const currentQuestion = game1ShuffledQuestions[game1CurrentQuestionIndex];
+            const allChoices = document.querySelectorAll('#game1-choices .choice-btn');
+            
+            allChoices.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                    btn.classList.add('correct');
+                } else if (btn.classList.contains('selected')) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (game1SelectedAnswer.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                game1Score++;
+                game1ScoreEl.textContent = game1Score;
+                game1FeedbackEl.textContent = "Correct!";
+                game1FeedbackEl.classList.remove('text-red-500');
+                game1FeedbackEl.classList.add('text-green-600');
+            } else {
+                game1FeedbackEl.textContent = `Incorrect! The answer was "${currentQuestion.answer}".`;
+                game1FeedbackEl.classList.remove('text-green-600');
+                game1FeedbackEl.classList.add('text-red-500');
+            }
+
+            game1SubmitBtn.classList.add('hidden');
+            game1NextBtn.classList.remove('hidden');
+        };
+
+        const nextQuestion1 = () => {
+            game1CurrentQuestionIndex++;
+            game1SubmitBtn.classList.remove('hidden');
+            game1NextBtn.classList.add('hidden');
+            showQuestion1();
+        };
+
+        const endGame1 = () => {
+            stopTimer1(); // Stop the timer
+            game1QuestionEl.textContent = `Game Over! Your final score is ${game1Score} out of ${game1ShuffledQuestions.length}. Total time: ${formatTime(game1Timer)}.`;
+            game1NextBtn.textContent = 'Play Again';
+            game1SubmitBtn.classList.add('hidden');
+            game1ChoicesEl.innerHTML = '';
+            game1FeedbackEl.textContent = '';
+        };
+
+        // Game 2 Functions (Mirrors Game 1)
+        const startTimer2 = () => {
+            game2Timer = 0;
+            game2TimerDisplay.textContent = formatTime(game2Timer);
+            game2Interval = setInterval(() => {
+                game2Timer++;
+                game2TimerDisplay.textContent = formatTime(game2Timer);
+            }, 1000);
+        };
+
+        const stopTimer2 = () => {
+            clearInterval(game2Interval);
+        };
+
+        const startGame2 = () => {
+            game2ShuffledQuestions = shuffle(allQuestions);
+            game2CurrentQuestionIndex = 0;
+            game2Score = 0;
+            game2ScoreEl.textContent = game2Score;
+            game2StartBtn.classList.add('hidden');
+            game2SubmitBtn.classList.remove('hidden');
+            game2NextBtn.classList.add('hidden');
+            game2FeedbackEl.textContent = '';
+            game2QuestionEl.textContent = '';
+            startTimer2(); // Start the timer
+            showQuestion2();
+        };
+
+        const showQuestion2 = () => {
+            game2SelectedAnswer = null;
+            if (game2CurrentQuestionIndex < game2ShuffledQuestions.length) {
+                const currentQuestion = game2ShuffledQuestions[game2CurrentQuestionIndex];
+                game2QuestionEl.textContent = currentQuestion.question;
+                game2FeedbackEl.textContent = '';
+                game2ChoicesEl.innerHTML = '';
+                game2SubmitBtn.disabled = false;
+                
+                const choices = generateChoices(currentQuestion.answer, allWordPool);
+
+                choices.forEach(choice => {
+                    const button = document.createElement('button');
+                    button.textContent = choice;
+                    button.classList.add('choice-btn');
+                    // The 'click' event listener is compatible with both mouse and touch events
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('#game2-choices .choice-btn').forEach(btn => btn.classList.remove('selected'));
+                        button.classList.add('selected');
+                        game2SelectedAnswer = choice;
+                    });
+                    game2ChoicesEl.appendChild(button);
+                });
+            } else {
+                endGame2();
+            }
+        };
+
+        const submitAnswer2 = () => {
+            if (!game2SelectedAnswer) {
+                game2FeedbackEl.textContent = 'Please select an answer first!';
+                game2FeedbackEl.classList.remove('text-green-600');
+                game2FeedbackEl.classList.add('text-red-500');
+                return;
+            }
+
+            const currentQuestion = game2ShuffledQuestions[game2CurrentQuestionIndex];
+            const allChoices = document.querySelectorAll('#game2-choices .choice-btn');
+            
+            allChoices.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                    btn.classList.add('correct');
+                } else if (btn.classList.contains('selected')) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (game2SelectedAnswer.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                game2Score++;
+                game2ScoreEl.textContent = game2Score;
+                game2FeedbackEl.textContent = "Correct!";
+                game2FeedbackEl.classList.remove('text-red-500');
+                game2FeedbackEl.classList.add('text-green-600');
+            } else {
+                game2FeedbackEl.textContent = `Incorrect! The answer was "${currentQuestion.answer}".`;
+                game2FeedbackEl.classList.remove('text-green-600');
+                game2FeedbackEl.classList.add('text-red-500');
+            }
+
+            game2SubmitBtn.classList.add('hidden');
+            game2NextBtn.classList.remove('hidden');
+        };
+
+        const nextQuestion2 = () => {
+            game2CurrentQuestionIndex++;
+            game2SubmitBtn.classList.remove('hidden');
+            game2NextBtn.classList.add('hidden');
+            showQuestion2();
+        };
+
+        const endGame2 = () => {
+            stopTimer2(); // Stop the timer
+            game2QuestionEl.textContent = `Game Over! Your final score is ${game2Score} out of ${game2ShuffledQuestions.length}. Total time: ${formatTime(game2Timer)}.`;
+            game2NextBtn.textContent = 'Play Again';
+            game2SubmitBtn.classList.add('hidden');
+            game2ChoicesEl.innerHTML = '';
+            game2FeedbackEl.textContent = '';
+        };
+        
+        // Event Listeners
+        game1StartBtn.addEventListener('click', startGame1);
+        game1SubmitBtn.addEventListener('click', submitAnswer1);
+        game1NextBtn.addEventListener('click', () => {
+            if (game1NextBtn.textContent === 'Play Again') {
+                startGame1();
+                game1NextBtn.textContent = 'Next Question';
+            } else {
+                nextQuestion1();
+            }
+        });
+
+        game2StartBtn.addEventListener('click', startGame2);
+        game2SubmitBtn.addEventListener('click', submitAnswer2);
+        game2NextBtn.addEventListener('click', () => {
+            if (game2NextBtn.textContent === 'Play Again') {
+                startGame2();
+                game2NextBtn.textContent = 'Next Question';
+            } else {
+                nextQuestion2();
+            }
+        });
+    </script>
 </body>
 </html>
